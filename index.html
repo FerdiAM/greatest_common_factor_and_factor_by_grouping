@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FactorCraft - GCF & Factoring by Grouping Master</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            900: '#4c1d95',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .math-font { font-family: 'JetBrains Mono', monospace; }
+        
+        .tab-btn, .action-btn {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .badge-unlocked {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+        
+        @keyframes pop {
+            0% { transform: scale(0.95); opacity: 0; }
+            70% { transform: scale(1.02); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: pop 0.25s forwards ease-out; }
+
+        @keyframes pulse-success {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-pulse-success { animation: pulse-success 1.5s infinite ease-in-out; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-200">
+
+    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-brand-600 to-indigo-500 text-white p-2.5 rounded-xl shadow-md shadow-brand-500/20 flex items-center justify-center">
+                    <i class="fa-solid fa-square-root-variable text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-brand-600 to-indigo-600 dark:from-brand-500 dark:to-indigo-400 bg-clip-text text-transparent">
+                        FactorCraft
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium hidden sm:block">Multi-Variable GCF & Factoring Master</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3 sm:space-x-5">
+                <div class="flex items-center space-x-1.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 px-3 py-1.5 rounded-full text-amber-600 dark:text-amber-400 font-semibold text-sm">
+                    <i class="fa-solid fa-fire text-amber-500"></i>
+                    <span id="stat-streak">0</span>
+                    <span class="text-xs text-amber-500/80 font-normal hidden md:inline">Streak</span>
+                </div>
+
+                <div class="flex items-center space-x-1.5 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/50 px-3 py-1.5 rounded-full text-purple-600 dark:text-purple-400 font-semibold text-sm">
+                    <i class="fa-solid fa-star text-purple-500"></i>
+                    <span id="stat-xp">0</span>
+                    <span class="text-xs text-purple-500/80 font-normal hidden md:inline">XP</span>
+                </div>
+
+                <div class="hidden sm:flex items-center space-x-1.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 px-3 py-1.5 rounded-full text-emerald-600 dark:text-emerald-400 font-semibold text-sm">
+                    <i class="fa-solid fa-bullseye text-emerald-500"></i>
+                    <span id="stat-accuracy">100%</span>
+                </div>
+
+                <button id="btn-audio" onclick="toggleAudio()" class="p-2 rounded-xl text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Toggle Sound Effects">
+                    <i id="audio-icon" class="fa-solid fa-volume-high text-lg"></i>
+                </button>
+
+                <button onclick="openGuideModal()" class="flex items-center space-x-1.5 bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/60 dark:hover:bg-brand-900/80 text-brand-700 dark:text-brand-300 border border-brand-200 dark:border-brand-800 px-3 py-1.5 rounded-xl font-medium text-sm transition">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span class="hidden md:inline">Guide</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-4">
+            <div class="flex bg-slate-200/70 dark:bg-slate-800 p-1 rounded-2xl w-full sm:w-auto text-sm font-semibold overflow-x-auto">
+                <button onclick="switchTab('gcf')" id="tab-gcf" class="tab-btn flex-1 sm:flex-none px-5 py-2.5 rounded-xl flex items-center justify-center space-x-2 bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-300 shadow-sm whitespace-nowrap">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span>1. GCF Practice</span>
+                </button>
+                <button onclick="switchTab('grouping')" id="tab-grouping" class="tab-btn flex-1 sm:flex-none px-5 py-2.5 rounded-xl flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 whitespace-nowrap">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>2. Grouping Practice</span>
+                </button>
+                <button onclick="switchTab('solver')" id="tab-solver" class="tab-btn flex-1 sm:flex-none px-5 py-2.5 rounded-xl flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 whitespace-nowrap">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>3. Multi-Var Solver</span>
+                </button>
+            </div>
+
+            <div id="practice-controls" class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">Difficulty:</span>
+                    <select id="difficulty-select" onchange="changeDifficulty(this.value)" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="easy">Easy (Single Var)</option>
+                        <option value="medium" selected>Medium (Multi-Var)</option>
+                        <option value="hard">Hard (Advanced Variables)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-gcf" class="space-y-6">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 md:p-8 shadow-sm text-center relative overflow-hidden">
+                <div class="absolute top-4 right-4 flex items-center space-x-2">
+                    <span id="gcf-var-badge" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-brand-100 text-brand-700 dark:bg-brand-900/50 dark:text-brand-300">
+                        Vars: a, b
+                    </span>
+                </div>
+
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Problem Statement</p>
+                <div id="gcf-problem-display" class="math-font text-2xl sm:text-4xl font-bold my-4 text-slate-800 dark:text-slate-100 tracking-wide min-h-[50px] flex items-center justify-center">
+                    <!-- Dynamic GCF Output -->
+                </div>
+
+                <p id="gcf-instruction" class="text-slate-600 dark:text-slate-300 text-sm mt-2">
+                    Find the Greatest Common Factor (GCF) and factor the algebraic polynomial.
+                </p>
+            </div>
+
+            <!-- Success Banner (Retained state until Next Question is pressed) -->
+            <div id="gcf-success-banner" class="hidden bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-500/50 rounded-2xl p-5 shadow-sm text-emerald-800 dark:text-emerald-200 flex flex-col md:flex-row items-center justify-between gap-4 animate-pop">
+                <div class="flex items-center space-x-3 text-left">
+                    <div class="bg-emerald-500 text-white rounded-full p-2 text-xl flex-shrink-0">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg">Solution Verified & Correct!</h3>
+                        <p class="text-xs text-emerald-700 dark:text-emerald-300">Your answer and breakdown are preserved below. Click "Next Problem" when ready to continue.</p>
+                    </div>
+                </div>
+                <button onclick="generateGCFProblem()" class="animate-pulse-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition flex items-center space-x-2 whitespace-nowrap">
+                    <span>Next Problem</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Inputs Card -->
+            <div id="gcf-input-card" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm space-y-6">
+                <!-- Step 1 -->
+                <div id="gcf-step-1" class="space-y-3">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                        <span>Step 1: Enter the Greatest Common Factor (GCF)</span>
+                        <span id="gcf-step1-status" class="text-xs"></span>
+                    </label>
+                    <div class="flex gap-3">
+                        <input type="text" id="input-gcf-val" placeholder="e.g. 3a^2b or 5m" class="math-font flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-slate-100">
+                        <button id="btn-gcf-step1" onclick="checkGCFStep1()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-brand-500/20 transition flex items-center space-x-2">
+                            <span>Check GCF</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div id="gcf-step-2" class="space-y-3 opacity-60 pointer-events-none transition-all duration-300 border-t border-slate-200 dark:border-slate-700 pt-4">
+                    <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                        <span>Step 2: Enter Full Factored Form <span class="text-xs text-slate-500 font-normal">(e.g., 3ab(2a + 3b))</span></span>
+                        <span id="gcf-step2-status" class="text-xs"></span>
+                    </label>
+                    <div class="flex gap-3">
+                        <input type="text" id="input-gcf-factored" placeholder="e.g. 3a^2b(2a - 3b + 1)" class="math-font flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-slate-100">
+                        <button id="btn-gcf-step2" onclick="checkGCFStep2()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-emerald-500/20 transition flex items-center space-x-2">
+                            <span>Submit Solution</span>
+                            <i class="fa-solid fa-check text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2 flex items-center justify-between">
+                        <span>Dynamic Math Keypad:</span>
+                        <span class="text-[10px] text-slate-400">Standard keyboard input is fully supported!</span>
+                    </p>
+                    <div id="math-keypad-container" class="flex flex-wrap gap-2">
+                        <!-- Keypad items injected dynamically based on variables -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+                <button onclick="toggleHintModal('gcf')" class="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 text-sm font-semibold flex items-center space-x-2">
+                    <i class="fa-regular fa-lightbulb text-amber-500"></i>
+                    <span>Need a Hint?</span>
+                </button>
+
+                <button onclick="generateGCFProblem()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold px-5 py-2.5 rounded-xl transition text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>New / Next Problem</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="view-grouping" class="hidden space-y-6">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 md:p-8 shadow-sm text-center relative">
+                <div class="absolute top-4 right-4">
+                    <span id="grouping-var-badge" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-brand-100 text-brand-700 dark:bg-brand-900/50 dark:text-brand-300">
+                        Vars: m, n
+                    </span>
+                </div>
+                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">4-Term Polynomial Problem</p>
+                <div id="grouping-problem-display" class="math-font text-2xl sm:text-4xl font-bold my-4 text-slate-800 dark:text-slate-100 tracking-wide min-h-[50px] flex items-center justify-center">
+                    <!-- Dynamic Grouping Problem Output -->
+                </div>
+                <p class="text-slate-600 dark:text-slate-300 text-sm">
+                    Factor this polynomial step-by-step using grouping.
+                </p>
+            </div>
+
+            <!-- Grouping Success Banner -->
+            <div id="grouping-success-banner" class="hidden bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-500/50 rounded-2xl p-5 shadow-sm text-emerald-800 dark:text-emerald-200 flex flex-col md:flex-row items-center justify-between gap-4 animate-pop">
+                <div class="flex items-center space-x-3 text-left">
+                    <div class="bg-emerald-500 text-white rounded-full p-2 text-xl flex-shrink-0">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg">Factoring Complete & Verified!</h3>
+                        <p class="text-xs text-emerald-700 dark:text-emerald-300">Your step-by-step grouping solution is saved below. Press "Next Problem" when ready.</p>
+                    </div>
+                </div>
+                <button onclick="generateGroupingProblem()" class="animate-pulse-success bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition flex items-center space-x-2 whitespace-nowrap">
+                    <span>Next Problem</span>
+                    <i class="fa-solid fa-arrow-right text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Grouping Steps Card -->
+            <div id="grouping-input-card" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm space-y-6">
+                <!-- Step 1 -->
+                <div id="grp-step-1-card" class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-brand-600 dark:text-brand-400 flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 flex items-center justify-center text-xs">1</span>
+                            <span>Step 1: Group terms into binomial pairs using parentheses</span>
+                        </span>
+                        <span id="grp-s1-feedback" class="text-xs font-semibold"></span>
+                    </div>
+                    <div class="flex gap-3">
+                        <input type="text" id="input-grp-s1" placeholder="e.g. (2m^3 + 6m^2) + (5m + 15)" class="math-font flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-slate-100">
+                        <button id="btn-grp-step1" onclick="checkGroupingStep1()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-3 rounded-xl transition text-sm">
+                            Verify Grouping
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div id="grp-step-2-card" class="space-y-3 opacity-50 pointer-events-none transition-all duration-300 border-t border-slate-200 dark:border-slate-700 pt-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-brand-600 dark:text-brand-400 flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 flex items-center justify-center text-xs">2</span>
+                            <span>Step 2: Factor out GCF from each group</span>
+                        </span>
+                        <span id="grp-s2-feedback" class="text-xs font-semibold"></span>
+                    </div>
+                    <div class="flex gap-3">
+                        <input type="text" id="input-grp-s2" placeholder="e.g. 2m^2(m + 3) + 5(m + 3)" class="math-font flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-slate-100">
+                        <button id="btn-grp-step2" onclick="checkGroupingStep2()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-5 py-3 rounded-xl transition text-sm">
+                            Verify GCF Pairs
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div id="grp-step-3-card" class="space-y-3 opacity-50 pointer-events-none transition-all duration-300 border-t border-slate-200 dark:border-slate-700 pt-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-bold text-brand-600 dark:text-brand-400 flex items-center space-x-2">
+                            <span class="w-6 h-6 rounded-full bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 flex items-center justify-center text-xs">3</span>
+                            <span>Step 3: Extract common binomial for final factored form</span>
+                        </span>
+                        <span id="grp-s3-feedback" class="text-xs font-semibold"></span>
+                    </div>
+                    <div class="flex gap-3">
+                        <input type="text" id="input-grp-s3" placeholder="e.g. (m + 3)(2m^2 + 5)" class="math-font flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-slate-100">
+                        <button id="btn-grp-step3" onclick="checkGroupingStep3()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-3 rounded-xl shadow-md shadow-emerald-500/20 transition text-sm flex items-center space-x-2">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Complete Problem</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
+                    <div id="grouping-keypad-container" class="flex flex-wrap gap-2">
+                        <!-- Keypad items injected dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <button onclick="toggleHintModal('grouping')" class="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 text-sm font-semibold flex items-center space-x-2">
+                    <i class="fa-regular fa-lightbulb text-amber-500"></i>
+                    <span>Show Grouping Hint</span>
+                </button>
+
+                <button onclick="generateGroupingProblem()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold px-5 py-2.5 rounded-xl transition text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>New / Next Problem</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="view-solver" class="hidden space-y-6">
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm">
+                <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2 flex items-center space-x-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i>
+                    <span>Multi-Variable Polynomial Factoring Solver</span>
+                </h2>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                    Enter any multi-variable polynomial expression (e.g., <span class="font-mono bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-xs">12a^2b - 18ab^2 + 24ab</span> or <span class="font-mono bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded text-xs">2p^3 + 6p^2 + 5p + 15</span>) to generate a step-by-step solution.
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-3 mb-4">
+                    <input type="text" id="solver-input" placeholder="e.g. 3m^3 + 9m^2 + 4m + 12" class="math-font flex-1 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-slate-100">
+                    <button onclick="solveUserPolynomial()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md shadow-brand-500/20 transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-gears"></i>
+                        <span>Solve & Explain</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center space-x-2 text-xs text-slate-500 dark:text-slate-400">
+                    <span>Try examples:</span>
+                    <button onclick="setSolverExample('12a^2b - 18ab^2 + 24ab')" class="hover:underline text-brand-600 dark:text-brand-400">Multi-Var GCF</button>
+                    <span>•</span>
+                    <button onclick="setSolverExample('2u^3 + 6u^2 + 5u + 15')" class="hover:underline text-brand-600 dark:text-brand-400">Grouping Example</button>
+                    <span>•</span>
+                    <button onclick="setSolverExample('ax + ay + bx + by')" class="hover:underline text-brand-600 dark:text-brand-400">Symbolic Grouping</button>
+                </div>
+            </div>
+
+            <div id="solver-results-card" class="hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm space-y-4">
+                <h3 class="text-md font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 flex items-center justify-between">
+                    <span>Step-by-Step Factoring Solution</span>
+                    <span id="solver-method-tag" class="text-xs px-2.5 py-1 rounded bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 font-semibold">
+                        Detected Method
+                    </span>
+                </h3>
+
+                <div id="solver-steps-container" class="space-y-4 font-mono text-sm sm:text-base">
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 shadow-sm">
+            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center space-x-2">
+                <i class="fa-solid fa-trophy text-amber-500"></i>
+                <span>Milestone Badges</span>
+            </h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div id="badge-first-step" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex items-center space-x-3 opacity-50 grayscale transition-all">
+                    <div class="text-2xl text-amber-500"><i class="fa-solid fa-seedling"></i></div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">First Factor</p>
+                        <p class="text-[10px] text-slate-500">Solve 1 problem</p>
+                    </div>
+                </div>
+                <div id="badge-streak-5" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex items-center space-x-3 opacity-50 grayscale transition-all">
+                    <div class="text-2xl text-orange-500"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">On Fire!</p>
+                        <p class="text-[10px] text-slate-500">5 Streak</p>
+                    </div>
+                </div>
+                <div id="badge-gcf-master" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex items-center space-x-3 opacity-50 grayscale transition-all">
+                    <div class="text-2xl text-brand-500"><i class="fa-solid fa-award"></i></div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">GCF Master</p>
+                        <p class="text-[10px] text-slate-500">Solve 5 GCFs</p>
+                    </div>
+                </div>
+                <div id="badge-grouping-pro" class="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex items-center space-x-3 opacity-50 grayscale transition-all">
+                    <div class="text-2xl text-emerald-500"><i class="fa-solid fa-crown"></i></div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200">Grouping Pro</p>
+                        <p class="text-[10px] text-slate-500">Solve 5 Groupings</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <div id="guide-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 shadow-xl space-y-6 animate-pop">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
+                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                    <i class="fa-solid fa-graduation-cap text-brand-600"></i>
+                    <span>Multi-Variable Math Guide & Rules</span>
+                </h3>
+                <button onclick="closeGuideModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="font-bold text-brand-600 dark:text-brand-400 text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-1"></i>
+                    <span>Multi-Variable GCF</span>
+                </h4>
+                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Find the greatest common factor for the numbers AND the lowest power for EACH variable present across all terms!
+                </p>
+                <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-xl font-mono text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                    <p class="font-bold text-indigo-600 dark:text-indigo-400">Example: Factor 12a²b³ - 18a³b² + 24ab²</p>
+                    <p>• Numeric GCF = 6</p>
+                    <p>• Lowest 'a' power = a¹ | Lowest 'b' power = b²</p>
+                    <p>• Total GCF = <strong>6ab²</strong></p>
+                    <p class="text-emerald-600 dark:text-emerald-400 font-bold">• Answer: 6ab²(2a - 3a² + 4)</p>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="font-bold text-brand-600 dark:text-brand-400 text-sm flex items-center space-x-2">
+                    <i class="fa-solid fa-2"></i>
+                    <span>Grouping Across Variable Sets</span>
+                </h4>
+                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Factor pairs by grouping even when terms use variables like <em>m, n, p, q, u, v, x, y</em>. Order of factors does not matter: <span class="font-mono">(u + 3)(2v + 5)</span> is equivalent to <span class="font-mono">(2v + 5)(u + 3)</span>!
+                </p>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="closeGuideModal()" class="w-full bg-brand-600 text-white font-semibold py-2.5 rounded-xl hover:bg-brand-700 transition text-sm">
+                    Got it, let's practice!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hint Popup Modal -->
+    <div id="hint-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4 animate-pop">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-2">
+                <h3 class="text-md font-bold text-amber-600 dark:text-amber-400 flex items-center space-x-2">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>Step Hint</span>
+                </h3>
+                <button onclick="closeHintModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="hint-modal-body" class="text-sm text-slate-700 dark:text-slate-300 font-mono space-y-2">
+            </div>
+            <button onclick="closeHintModal()" class="w-full bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 font-semibold py-2 rounded-xl text-sm transition">
+                Close Hint
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Banner -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-sm">
+        <span id="toast-icon"><i class="fa-solid fa-circle-check text-emerald-400"></i></span>
+        <span id="toast-message" class="font-medium">Notification</span>
+    </div>
+
+    <script>
+        /* State & Variable Pool */
+        const state = {
+            activeTab: 'gcf',
+            difficulty: 'medium',
+            audioEnabled: true,
+            stats: {
+                streak: 0,
+                xp: 0,
+                totalAttempted: 0,
+                totalCorrect: 0,
+                gcfSolved: 0,
+                groupingSolved: 0
+            },
+            currentGCF: null,
+            currentGrouping: null,
+            activeInputId: 'input-gcf-val'
+        };
+
+        const VARIABLE_SETS = [
+            ['a', 'b', 'c'],
+            ['m', 'n', 'p'],
+            ['x', 'y', 'z'],
+            ['u', 'v', 'w'],
+            ['p', 'q', 'r']
+        ];
+
+        /* Web Audio API SFX Generator */
+        let audioCtx = null;
+        function playSFX(type) {
+            if (!state.audioEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(174.61, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'clear') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'badge') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.setValueAtTime(554.37, now + 0.1);
+                    osc.frequency.setValueAtTime(659.25, now + 0.2);
+                    osc.frequency.setValueAtTime(880, now + 0.3);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                }
+            } catch (e) {
+                console.log("Audio not supported or restricted.");
+            }
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 50,
+                    spread: 60,
+                    origin: { y: 0.8 }
+                });
+            }
+        }
+
+        /* Helper Math Functions */
+        function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) {
+                let t = b;
+                b = a % b;
+                a = t;
+            }
+            return a;
+        }
+
+        function gcdArray(arr) {
+            return arr.reduce((acc, val) => gcd(acc, val));
+        }
+
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function getRandomVarSet() {
+            return VARIABLE_SETS[Math.floor(Math.random() * VARIABLE_SETS.length)];
+        }
+
+        function formatPower(variable, exp) {
+            if (exp === 0) return '';
+            if (exp === 1) return variable;
+            return `${variable}^${exp}`;
+        }
+
+        function formatPowerHTML(variable, exp) {
+            if (exp === 0) return '';
+            if (exp === 1) return variable;
+            return `${variable}<sup>${exp}</sup>`;
+        }
+
+        function normalizeAlgebra(str) {
+            return str
+                .replace(/\s+/g, '')
+                .replace(/\*\*/g, '^')
+                .replace(/·/g, '')
+                .replace(/\(+/g, '(')
+                .replace(/\)+/g, ')')
+                .toLowerCase();
+        }
+
+        function areAlgebraicallyEquivalent(expr1, expr2, vars = ['a', 'b', 'c', 'm', 'n', 'p', 'q', 'x', 'y', 'z', 'u', 'v', 'w']) {
+            const clean1 = normalizeAlgebra(expr1);
+            const clean2 = normalizeAlgebra(expr2);
+            if (clean1 === clean2) return true;
+
+            const prepareJSExpr = (expr) => {
+                let formatted = expr
+                    .replace(/([0-9a-zA-Z\)])\(/g, '$1*(')
+                    .replace(/\)([0-9a-zA-Z])/g, ')*$1')
+                    .replace(/([0-9])([a-zA-Z])/g, '$1*$2')
+                    .replace(/([a-zA-Z])([0-9])/g, '$1*$2')
+                    .replace(/([a-zA-Z])([a-zA-Z])/g, '$1*$2')
+                    .replace(/([a-zA-Z])([a-zA-Z])/g, '$1*$2');
+
+                formatted = formatted.replace(/([a-zA-Z0-9\)]+)\^([0-9]+)/g, 'Math.pow($1,$2)');
+                return formatted;
+            };
+
+            const sampleValues = [
+                { a: 2, b: 3, c: 5, m: 2, n: 4, p: 3, q: 5, x: 2, y: 3, z: 4, u: 2, v: 3, w: 5 },
+                { a: 3, b: 5, c: 2, m: 3, n: 2, p: 4, q: 2, x: 3, y: 4, z: 2, u: 3, v: 5, w: 2 },
+                { a: 4, b: 2, c: 3, m: 5, n: 3, p: 2, q: 3, x: 5, y: 2, z: 3, u: 4, v: 2, w: 3 }
+            ];
+
+            try {
+                const jsExpr1 = prepareJSExpr(clean1);
+                const jsExpr2 = prepareJSExpr(clean2);
+
+                for (let sample of sampleValues) {
+                    const keys = Object.keys(sample);
+                    const vals = Object.values(sample);
+
+                    const fn1 = new Function(...keys, `return ${jsExpr1};`);
+                    const fn2 = new Function(...keys, `return ${jsExpr2};`);
+
+                    const res1 = fn1(...vals);
+                    const res2 = fn2(...vals);
+
+                    if (isNaN(res1) || isNaN(res2) || Math.abs(res1 - res2) > 0.0001) {
+                        return false;
+                    }
+                }
+                return true;
+            } catch (err) {
+                return clean1 === clean2;
+            }
+        }
+
+        function generateGCFProblem() {
+            document.getElementById('gcf-success-banner').classList.add('hidden');
+            document.getElementById('input-gcf-val').value = '';
+            document.getElementById('input-gcf-factored').value = '';
+            document.getElementById('gcf-step1-status').innerHTML = '';
+            document.getElementById('gcf-step2-status').innerHTML = '';
+            
+            document.getElementById('input-gcf-val').disabled = false;
+            document.getElementById('btn-gcf-step1').disabled = false;
+            document.getElementById('input-gcf-factored').disabled = false;
+            document.getElementById('btn-gcf-step2').disabled = false;
+
+            document.getElementById('gcf-step-2').classList.add('opacity-60', 'pointer-events-none');
+
+            const diff = state.difficulty;
+            const varSet = getRandomVarSet();
+            const v1 = varSet[0];
+            const v2 = diff === 'easy' ? '' : varSet[1];
+
+            let numTerms = diff === 'easy' ? 2 : 3;
+            let numericGCF = getRandomInt(2, diff === 'easy' ? 8 : (diff === 'medium' ? 12 : 16));
+            
+            let v1GCF = getRandomInt(1, diff === 'hard' ? 2 : 1);
+            let v2GCF = v2 ? getRandomInt(1, diff === 'hard' ? 2 : 1) : 0;
+
+            let cofactors = [];
+            if (numTerms === 2) {
+                let c1 = getRandomInt(1, 6);
+                let c2 = getRandomInt(1, 6);
+                while (gcd(c1, c2) !== 1) c2 = getRandomInt(1, 6);
+                cofactors = [c1, c2];
+            } else {
+                let c1 = getRandomInt(1, 5);
+                let c2 = getRandomInt(1, 5);
+                let c3 = getRandomInt(1, 5);
+                while (gcdArray([c1, c2, c3]) !== 1) c3 = getRandomInt(1, 5);
+                cofactors = [c1, c2, c3];
+            }
+
+            let terms = [];
+            let factoredTerms = [];
+            let expOffsets1 = numTerms === 2 ? [getRandomInt(1, 2), 0] : [getRandomInt(2, 3), getRandomInt(1, 2), 0];
+            let expOffsets2 = v2 ? (numTerms === 2 ? [0, getRandomInt(1, 2)] : [getRandomInt(1, 2), 0, getRandomInt(1, 2)]) : [0, 0, 0];
+
+            for (let i = 0; i < numTerms; i++) {
+                let coeff = numericGCF * cofactors[i];
+                let exp1 = v1GCF + expOffsets1[i];
+                let exp2 = v2 ? v2GCF + expOffsets2[i] : 0;
+                
+                terms.push({ coeff, exp1, exp2 });
+                factoredTerms.push({ coeff: cofactors[i], exp1: expOffsets1[i], exp2: expOffsets2[i] });
+            }
+
+            if (diff !== 'easy') {
+                for (let i = 1; i < terms.length; i++) {
+                    if (Math.random() > 0.5) {
+                        terms[i].coeff *= -1;
+                        factoredTerms[i].coeff *= -1;
+                    }
+                }
+            }
+
+            let problemDisplayHTML = '';
+            terms.forEach((t, idx) => {
+                let sign = idx > 0 ? (t.coeff >= 0 ? ' + ' : ' - ') : (t.coeff < 0 ? '-' : '');
+                let absCoeff = Math.abs(t.coeff);
+                let var1Str = formatPowerHTML(v1, t.exp1);
+                let var2Str = v2 ? formatPowerHTML(v2, t.exp2) : '';
+                problemDisplayHTML += `${sign}${absCoeff}${var1Str}${var2Str}`;
+            });
+
+            let gcfStr = `${numericGCF}${formatPower(v1, v1GCF)}${v2 ? formatPower(v2, v2GCF) : ''}`;
+            
+            let insideStr = '';
+            factoredTerms.forEach((ft, idx) => {
+                let sign = idx > 0 ? (ft.coeff >= 0 ? ' + ' : ' - ') : (ft.coeff < 0 ? '-' : '');
+                let absCoeff = Math.abs(ft.coeff);
+                let v1Part = formatPower(v1, ft.exp1);
+                let v2Part = v2 ? formatPower(v2, ft.exp2) : '';
+                let hasVars = (v1Part || v2Part);
+                let coeffStr = (absCoeff === 1 && hasVars) ? '' : `${absCoeff}`;
+                insideStr += `${sign}${coeffStr}${v1Part}${v2Part}`;
+            });
+
+            let fullFactoredStr = `${gcfStr}(${insideStr})`;
+
+            state.currentGCF = {
+                v1, v2,
+                gcfStr: gcfStr.trim(),
+                fullFactoredStr: fullFactoredStr.replace(/\s+/g, ''),
+                solved: false
+            };
+
+            document.getElementById('gcf-problem-display').innerHTML = problemDisplayHTML;
+            document.getElementById('gcf-var-badge').innerText = `Vars: ${v1}${v2 ? ', ' + v2 : ''}`;
+            renderMathKeypad('math-keypad-container', [v1, v2].filter(Boolean));
+            document.getElementById('input-gcf-val').focus();
+        }
+
+        function checkGCFStep1() {
+            if (state.currentGCF.solved) return;
+            let userVal = normalizeAlgebra(document.getElementById('input-gcf-val').value);
+            let correctVal = normalizeAlgebra(state.currentGCF.gcfStr);
+
+            const statusEl = document.getElementById('gcf-step1-status');
+
+            if (areAlgebraicallyEquivalent(userVal, correctVal)) {
+                statusEl.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> Correct GCF!</span>`;
+                playSFX('correct');
+                document.getElementById('gcf-step-2').classList.remove('opacity-60', 'pointer-events-none');
+                document.getElementById('input-gcf-factored').focus();
+            } else {
+                statusEl.innerHTML = `<span class="text-rose-500 font-bold"><i class="fa-solid fa-circle-xmark"></i> Incorrect GCF. Try again!</span>`;
+                playSFX('wrong');
+                recordMistake();
+            }
+        }
+
+        function checkGCFStep2() {
+            if (state.currentGCF.solved) return;
+            let userVal = normalizeAlgebra(document.getElementById('input-gcf-factored').value);
+            let correctVal = normalizeAlgebra(state.currentGCF.fullFactoredStr);
+
+            const statusEl = document.getElementById('gcf-step2-status');
+
+            if (areAlgebraicallyEquivalent(userVal, correctVal)) {
+                state.currentGCF.solved = true;
+                statusEl.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> Perfect Factoring!</span>`;
+                playSFX('correct');
+                triggerConfetti();
+                addPoints(20);
+                state.stats.gcfSolved++;
+                checkBadges();
+
+                document.getElementById('gcf-success-banner').classList.remove('hidden');
+                document.getElementById('input-gcf-val').disabled = true;
+                document.getElementById('btn-gcf-step1').disabled = true;
+                document.getElementById('input-gcf-factored').disabled = true;
+                document.getElementById('btn-gcf-step2').disabled = true;
+
+                showToast("Great Job! Solution verified correctly.");
+            } else {
+                statusEl.innerHTML = `<span class="text-rose-500 font-bold"><i class="fa-solid fa-circle-xmark"></i> Not equivalent. Check factors and parentheses!</span>`;
+                playSFX('wrong');
+                recordMistake();
+            }
+        }
+
+        function generateGroupingProblem() {
+            document.getElementById('grouping-success-banner').classList.add('hidden');
+            document.getElementById('input-grp-s1').value = '';
+            document.getElementById('input-grp-s2').value = '';
+            document.getElementById('input-grp-s3').value = '';
+            
+            document.getElementById('grp-s1-feedback').innerHTML = '';
+            document.getElementById('grp-s2-feedback').innerHTML = '';
+            document.getElementById('grp-s3-feedback').innerHTML = '';
+
+            ['s1', 's2', 's3'].forEach(s => {
+                document.getElementById(`input-grp-${s}`).disabled = false;
+                document.getElementById(`btn-grp-step${s.replace('s','')}`).disabled = false;
+            });
+
+            document.getElementById('grp-step-2-card').classList.add('opacity-50', 'pointer-events-none');
+            document.getElementById('grp-step-3-card').classList.add('opacity-50', 'pointer-events-none');
+
+            const varSet = getRandomVarSet();
+            const v1 = varSet[0];
+            const v2 = state.difficulty === 'easy' ? '' : varSet[1];
+
+            let a = getRandomInt(1, 3);
+            let b = getRandomInt(1, 5);
+            let c = getRandomInt(1, 3);
+            let d = getRandomInt(1, 5);
+
+            let t1 = a * c;
+            let t2 = b * c;
+            let t3 = a * d;
+            let t4 = b * d;
+
+            let displayHTML = v2 
+                ? `${t1}${v1}<sup>2</sup> + ${t2}${v1}${v2} + ${t3}${v1} + ${t4}${v2}`
+                : `${t1}${v1}<sup>3</sup> + ${t2}${v1}<sup>2</sup> + ${t3}${v1} + ${t4}`;
+
+            let s1Expected = v2 
+                ? `(${t1}${v1}^2+${t2}${v1}${v2})+(${t3}${v1}+${t4}${v2})`
+                : `(${t1}${v1}^3+${t2}${v1}^2)+(${t3}${v1}+${t4})`;
+
+            let gcf1Str = v2 ? `${c === 1 ? '' : c}${v1}` : `${c === 1 ? '' : c}${v1}^2`;
+            let bin1Str = v2 ? `${a === 1 ? '' : a}${v1}+${b}${v2}` : `${a === 1 ? '' : a}${v1}+${b}`;
+            let s2Expected = `${gcf1Str}(${bin1Str})+${d}(${bin1Str})`;
+
+            let bin2Str = v2 ? `${c === 1 ? '' : c}${v1}+${d}` : `${c === 1 ? '' : c}${v1}^2+${d}`;
+            let s3Expected = `(${bin1Str})(${bin2Str})`;
+
+            state.currentGrouping = {
+                v1, v2,
+                s1Expected: normalizeAlgebra(s1Expected),
+                s2Expected: normalizeAlgebra(s2Expected),
+                s3Expected: normalizeAlgebra(s3Expected),
+                bin1Str, bin2Str,
+                solved: false
+            };
+
+            document.getElementById('grouping-problem-display').innerHTML = displayHTML;
+            document.getElementById('grouping-var-badge').innerText = `Vars: ${v1}${v2 ? ', ' + v2 : ''}`;
+            renderMathKeypad('grouping-keypad-container', [v1, v2].filter(Boolean));
+            document.getElementById('input-grp-s1').focus();
+        }
+
+        function checkGroupingStep1() {
+            if (state.currentGrouping.solved) return;
+            let userVal = normalizeAlgebra(document.getElementById('input-grp-s1').value);
+            let feedback = document.getElementById('grp-s1-feedback');
+
+            if (areAlgebraicallyEquivalent(userVal, state.currentGrouping.s1Expected)) {
+                feedback.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400"><i class="fa-solid fa-check"></i> Grouped Correctly!</span>`;
+                playSFX('correct');
+                document.getElementById('grp-step-2-card').classList.remove('opacity-50', 'pointer-events-none');
+                document.getElementById('input-grp-s2').focus();
+            } else {
+                feedback.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-xmark"></i> Check grouping pairs with parentheses!</span>`;
+                playSFX('wrong');
+                recordMistake();
+            }
+        }
+
+        function checkGroupingStep2() {
+            if (state.currentGrouping.solved) return;
+            let userVal = normalizeAlgebra(document.getElementById('input-grp-s2').value);
+            let feedback = document.getElementById('grp-s2-feedback');
+
+            if (areAlgebraicallyEquivalent(userVal, state.currentGrouping.s2Expected)) {
+                feedback.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400"><i class="fa-solid fa-check"></i> GCF Pairs Verified!</span>`;
+                playSFX('correct');
+                document.getElementById('grp-step-3-card').classList.remove('opacity-50', 'pointer-events-none');
+                document.getElementById('input-grp-s3').focus();
+            } else {
+                feedback.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-xmark"></i> Incorrect GCF pair extraction.</span>`;
+                playSFX('wrong');
+                recordMistake();
+            }
+        }
+
+        function checkGroupingStep3() {
+            if (state.currentGrouping.solved) return;
+            let userVal = normalizeAlgebra(document.getElementById('input-grp-s3').value);
+            let feedback = document.getElementById('grp-s3-feedback');
+
+            if (areAlgebraicallyEquivalent(userVal, state.currentGrouping.s3Expected)) {
+                state.currentGrouping.solved = true;
+                feedback.innerHTML = `<span class="text-emerald-600 dark:text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> Factored Completely!</span>`;
+                playSFX('correct');
+                triggerConfetti();
+                addPoints(30);
+                state.stats.groupingSolved++;
+                checkBadges();
+
+                document.getElementById('grouping-success-banner').classList.remove('hidden');
+                ['s1', 's2', 's3'].forEach(s => {
+                    document.getElementById(`input-grp-${s}`).disabled = true;
+                    document.getElementById(`btn-grp-step${s.replace('s','')}`).disabled = true;
+                });
+
+                showToast("Outstanding! Factoring by grouping complete.");
+            } else {
+                feedback.innerHTML = `<span class="text-rose-500 font-bold"><i class="fa-solid fa-xmark"></i> Factors not equivalent. Check binomials.</span>`;
+                playSFX('wrong');
+                recordMistake();
+            }
+        }
+
+        function solveUserPolynomial() {
+            const rawInput = document.getElementById('solver-input').value.trim();
+            const resultsCard = document.getElementById('solver-results-card');
+            const stepsContainer = document.getElementById('solver-steps-container');
+            const methodTag = document.getElementById('solver-method-tag');
+
+            if (!rawInput) {
+                showToast("Please enter an expression to solve!");
+                return;
+            }
+
+            resultsCard.classList.remove('hidden');
+            stepsContainer.innerHTML = '';
+
+            stepsContainer.innerHTML = `
+                <div class="p-3 bg-slate-100 dark:bg-slate-900 rounded-xl space-y-2">
+                    <p class="font-bold text-brand-600 dark:text-brand-400">Input Expression: <span class="text-slate-800 dark:text-slate-200">${rawInput}</span></p>
+                    <p class="text-xs text-slate-500">Analyzing expression structure and terms...</p>
+                </div>
+            `;
+
+            if (rawInput.includes('+') || rawInput.includes('-')) {
+                stepsContainer.innerHTML += `
+                    <div class="p-3 bg-brand-50 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800 rounded-xl space-y-1">
+                        <p class="font-bold text-sm text-brand-700 dark:text-brand-300">Step 1: Identify GCF across all variables & terms</p>
+                        <p class="text-xs text-slate-600 dark:text-slate-300">Evaluating coefficients and lowest power exponents.</p>
+                    </div>
+                `;
+
+                if ((rawInput.match(/[\+\-]/g) || []).length >= 3) {
+                    methodTag.innerText = "4-Term Grouping Method";
+                    stepsContainer.innerHTML += `
+                        <div class="p-3 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-xl space-y-2 text-xs">
+                            <p class="font-bold text-indigo-700 dark:text-indigo-300 text-sm">Step 2: Group into binomial pairs</p>
+                            <p class="font-mono text-slate-700 dark:text-slate-200">Pair terms in parentheses</p>
+                            <p class="font-bold text-indigo-700 dark:text-indigo-300 text-sm mt-2">Step 3: Extract matching binomials</p>
+                            <p class="font-mono text-emerald-600 dark:text-emerald-400">Result: Combined binomial factors.</p>
+                        </div>
+                    `;
+                } else {
+                    methodTag.innerText = "GCF Factoring Method";
+                    stepsContainer.innerHTML += `
+                        <div class="p-3 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-xl space-y-2 text-xs">
+                            <p class="font-bold text-indigo-700 dark:text-indigo-300 text-sm">Step 2: Factor out GCF</p>
+                            <p class="text-slate-600 dark:text-slate-300">Divide every term by the overall GCF.</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function setSolverExample(expr) {
+            document.getElementById('solver-input').value = expr;
+            solveUserPolynomial();
+        }
+
+        function renderMathKeypad(containerId, activeVars) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const allVars = Array.from(new Set([...activeVars, 'a', 'b', 'm', 'n', 'p', 'x', 'y']));
+            let html = '';
+
+            allVars.forEach(v => {
+                html += `<button onclick="insertMathKey('${v}')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-sm font-mono font-semibold">${v}</button>`;
+            });
+
+            html += `
+                <button onclick="insertMathKey('^2')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-sm font-mono font-semibold">x²</button>
+                <button onclick="insertMathKey('^3')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-sm font-mono font-semibold">x³</button>
+                <button onclick="insertMathKey('(')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-sm font-mono font-semibold">(</button>
+                <button onclick="insertMathKey(')')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-sm font-mono font-semibold">)</button>
+                <button onclick="insertMathKey('+')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-sm font-mono font-semibold">+</button>
+                <button onclick="insertMathKey('-')" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-lg text-sm font-mono font-semibold">-</button>
+                <button onclick="clearActiveInput()" class="px-3 py-1.5 bg-rose-100 dark:bg-rose-950/50 hover:bg-rose-200 text-rose-700 dark:text-rose-300 rounded-lg text-sm font-semibold ml-auto flex items-center space-x-1">
+                    <i class="fa-solid fa-eraser text-xs"></i>
+                    <span>Clear Input</span>
+                </button>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function insertMathKey(val) {
+            if (!state.activeInputId) return;
+            const input = document.getElementById(state.activeInputId);
+            if (!input || input.disabled) return;
+
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            const text = input.value;
+            
+            input.value = text.substring(0, start) + val + text.substring(end);
+            input.focus();
+            input.setSelectionRange(start + val.length, start + val.length);
+        }
+
+        function clearActiveInput() {
+            if (state.activeInputId) {
+                const input = document.getElementById(state.activeInputId);
+                if (input && !input.disabled) {
+                    input.value = '';
+                    playSFX('clear');
+                }
+            }
+        }
+
+        function addPoints(pts) {
+            state.stats.streak++;
+            state.stats.xp += pts;
+            state.stats.totalAttempted++;
+            state.stats.totalCorrect++;
+            updateStatsUI();
+        }
+
+        function recordMistake() {
+            state.stats.streak = 0;
+            state.stats.totalAttempted++;
+            updateStatsUI();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('stat-streak').innerText = state.stats.streak;
+            document.getElementById('stat-xp').innerText = state.stats.xp;
+            
+            let acc = state.stats.totalAttempted > 0 
+                ? Math.round((state.stats.totalCorrect / state.stats.totalAttempted) * 100) 
+                : 100;
+            document.getElementById('stat-accuracy').innerText = `${acc}%`;
+        }
+
+        function checkBadges() {
+            if (state.stats.totalCorrect >= 1) unlockBadge('badge-first-step');
+            if (state.stats.streak >= 5) unlockBadge('badge-streak-5');
+            if (state.stats.gcfSolved >= 5) unlockBadge('badge-gcf-master');
+            if (state.stats.groupingSolved >= 5) unlockBadge('badge-grouping-pro');
+        }
+
+        function unlockBadge(badgeId) {
+            const el = document.getElementById(badgeId);
+            if (el && el.classList.contains('grayscale')) {
+                el.classList.remove('grayscale', 'opacity-50');
+                el.classList.add('badge-unlocked', 'shadow-md', 'border-amber-300');
+                playSFX('badge');
+                showToast("🎉 New Achievement Badge Unlocked!");
+            }
+        }
+
+        function switchTab(tabName) {
+            state.activeTab = tabName;
+            
+            document.getElementById('view-gcf').classList.add('hidden');
+            document.getElementById('view-grouping').classList.add('hidden');
+            document.getElementById('view-solver').classList.add('hidden');
+
+            ['gcf', 'grouping', 'solver'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                btn.className = "tab-btn flex-1 sm:flex-none px-5 py-2.5 rounded-xl flex items-center justify-center space-x-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 whitespace-nowrap";
+            });
+
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            activeBtn.className = "tab-btn flex-1 sm:flex-none px-5 py-2.5 rounded-xl flex items-center justify-center space-x-2 bg-white dark:bg-slate-700 text-brand-600 dark:text-brand-300 shadow-sm font-bold whitespace-nowrap";
+
+            const ctrls = document.getElementById('practice-controls');
+            if (tabName === 'solver') {
+                ctrls.classList.add('hidden');
+                document.getElementById('view-solver').classList.remove('hidden');
+            } else {
+                ctrls.classList.remove('hidden');
+                document.getElementById(`view-${tabName}`).classList.remove('hidden');
+            }
+
+            if (tabName === 'gcf' && !state.currentGCF) generateGCFProblem();
+            if (tabName === 'grouping' && !state.currentGrouping) generateGroupingProblem();
+        }
+
+        function changeDifficulty(val) {
+            state.difficulty = val;
+            if (state.activeTab === 'gcf') generateGCFProblem();
+            else if (state.activeTab === 'grouping') generateGroupingProblem();
+        }
+
+        document.addEventListener('focusin', (e) => {
+            if (e.target.tagName === 'INPUT') {
+                state.activeInputId = e.target.id;
+            }
+        });
+
+        function toggleHintModal(moduleType) {
+            const body = document.getElementById('hint-modal-body');
+            if (moduleType === 'gcf') {
+                body.innerHTML = `
+                    <p><strong>GCF Hint:</strong></p>
+                    <p>• Variable(s) involved: <strong>${state.currentGCF.v1}${state.currentGCF.v2 ? ', ' + state.currentGCF.v2 : ''}</strong></p>
+                    <p>• Extract the lowest exponent for each variable!</p>
+                `;
+            } else {
+                body.innerHTML = `
+                    <p><strong>Grouping Hint:</strong></p>
+                    <p>• Group terms into pairs using parentheses.</p>
+                    <p>• Common Binomial Factor: <strong>(${state.currentGrouping.bin1Str})</strong></p>
+                `;
+            }
+            document.getElementById('hint-modal').classList.remove('hidden');
+        }
+
+        function closeHintModal() {
+            document.getElementById('hint-modal').classList.add('hidden');
+        }
+
+        function openGuideModal() {
+            document.getElementById('guide-modal').classList.remove('hidden');
+        }
+
+        function closeGuideModal() {
+            document.getElementById('guide-modal').classList.add('hidden');
+        }
+
+        function toggleAudio() {
+            state.audioEnabled = !state.audioEnabled;
+            const icon = document.getElementById('audio-icon');
+            icon.className = state.audioEnabled ? "fa-solid fa-volume-high text-lg" : "fa-solid fa-volume-xmark text-lg text-rose-500";
+            showToast(state.audioEnabled ? "Sound effects enabled" : "Sound effects muted");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                if (state.activeInputId === 'input-gcf-val') checkGCFStep1();
+                else if (state.activeInputId === 'input-gcf-factored') checkGCFStep2();
+                else if (state.activeInputId === 'input-grp-s1') checkGroupingStep1();
+                else if (state.activeInputId === 'input-grp-s2') checkGroupingStep2();
+                else if (state.activeInputId === 'input-grp-s3') checkGroupingStep3();
+                else if (state.activeInputId === 'solver-input') solveUserPolynomial();
+            }
+        });
+
+        window.onload = function() {
+            generateGCFProblem();
+        };
+    </script>
+</body>
+</html>
